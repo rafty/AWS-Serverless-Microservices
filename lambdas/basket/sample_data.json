@@ -1,0 +1,28 @@
+{
+    "product": [
+        {
+            "category": "Phone",
+            "id": "4c713236-260c-45d4-b946-3ed9e4c65458",
+            "price": 740.4,
+            "name": "Samsung 10",
+            "imageFile": "product-2.png",
+            "description": "This is the company's biggest change to its flagship smartphone in years. It includes a borderless."
+        },
+        {
+            "category": "Phone",
+            "id": "3e1344fd-8506-4a52-93f8-1444c0634295",
+            "price": 950.4,
+            "name": "IPone X",
+            "imageFile": "product-1.png",
+            "description": "This is the company's biggest change to its flagship smartphone in years. It includes a borderless."
+        },
+        {
+            "category": "Phone",
+            "id": "4712ab70-deff-4437-a021-06442af0fe28",
+            "price": 950.4,
+            "imageFile": "product-1Y.png",
+            "name": "IPhone XY",
+            "description": "This is the company's biggest change to its flagship smartphone in years. It includes a borderless."
+        }
+    ]
+}
