@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 import decimal
+import datetime
 import boto3
 # from dynamo_obj_conversion import python_obj_to_dynamodb_obj
 # from dynamo_obj_conversion import dynamo_obj_to_python_obj
@@ -11,206 +12,200 @@ from json_encoder import JSONEncoder
 
 table_name = os.environ.get('DYNAMODB_TABLE_NAME')
 primary_key = os.environ.get('PRIMARY_KEY')
-eventbus_name = os.environ.get('EVENT_BUS_NAME')
-event_source = os.environ.get('EVENT_SOURCE')
-event_detail_type = os.environ.get('EVENT_DETAIL_TYPE')
+sort_key = os.environ.get('SORT_KEY')
 
 dynamodb = boto3.client('dynamodb')
-eventbus = boto3.client('events')
 
 
 class NeedParameter(Exception):
     pass
 
 
-class BasketError(Exception):
+class OrderError(Exception):
     pass
 
 
-def get_basket(user_name: str) -> dict:
+# def create_order(basket_checkout_event: str):
+def create_order(basket_checkout_event: str):
+    # Todo: basket_checkout_eventの中身はjsonで・・・
+    # Todo: outputの中身はdictで・・・
+    # create order item into db
+    # detail object should be basket_checkout_event json object
+    print(f'::create_order() type: {type(basket_checkout_event)}\nbasket_checkout_event: {basket_checkout_event}')
+    """
+    json string
+    {
+        "version": "0",
+        "id": "63a9ea27-9eac-3f93-323e-702b59b721e8",
+        "detail-type": "BasketCheckout",
+        "source": "com.basket.basket-checkout",
+        "account": "338456725408",
+        "time": "2022-10-05T14:00:28Z",
+        "region": "ap-northeast-1",
+        "resources": [],
+        "detail": {
+            "userName": "swn",
+            "totalPrice": 0,
+            "lastName": "mehmet",
+            "email": "ezozkme@gmail.com",
+            "address": "istanbul",
+            "cardInfo": "5554443322",
+            "paymentMethod": 1,
+            "total_price": 1820,
+            "items": {
+                "userName": "swn",
+                "items": [
+                    {
+                        "quantity": 2,
+                        "color": "Red",
+                        "productId": "7934e4bd-d688-4376-bd98-8278b911eaaf",
+                        "price": 950,
+                        "productName": "IPhone X"
+                    },
+                    {
+                        "quantity": 1,
+                        "color": "Blue",
+                        "productId": "ab4797a9-cdfa-4158-9da4-82307d76b209",
+                        "price": 870,
+                        "productName": "Samsung 10"
+                    }
+                ]
+            }
+        }
+    }    
+    """
+
+    try:
+        # Todo: jsonにFloatが含まれるためDecimalをつかう
+        event_data = json.loads(basket_checkout_event, parse_float=decimal.Decimal)
+        print(f'event_data dict: {event_data}')
+        """
+        type: dict
+        {
+            'version': '0',
+            'id': '63a9ea27-9eac-3f93-323e-702b59b721e8',
+            'detail-type': 'BasketCheckout',
+            'source': 'com.basket.basket-checkout',
+            'account': '338456725408',
+            'time': '2022-10-05T14:00:28Z',
+            'region': 'ap-northeast-1',
+            'resources': [],
+            'detail': {
+                'userName': 'swn',
+                'totalPrice': 0,
+                'lastName': 'mehmet',
+                'email': 'ezozkme@gmail.com',
+                'address': 'istanbul',
+                'cardInfo': '5554443322',
+                'paymentMethod': 1,
+                'total_price': Decimal('1820.0'),
+                'items': {
+                    'userName': 'swn',
+                    'items': [
+                        {
+                            'quantity': Decimal('2.0'),
+                            'color': 'Red',
+                            'productId': '7934e4bd-d688-4376-bd98-8278b911eaaf',
+                            'price': Decimal('950.0'),
+                            'productName': 'IPhone X'
+                        },
+                        {
+                            'quantity': Decimal('1.0'),
+                            'color': 'Blue',
+                            'productId': 'ab4797a9-cdfa-4158-9da4-82307d76b209',
+                            'price': Decimal('870.0'),
+                            'productName': 'Samsung 10'
+                        }
+                    ]
+                }
+            }
+        }
+        """
+        detail = event_data.get('detail')
+        # orderDateを追加
+        detail['orderDate'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        print(f'detail: {detail}')
+        """
+        {
+            'userName': 'swn',
+            'totalPrice': 0,
+            'lastName': 'mehmet',
+            'email': 'ezozkme@gmail.com',
+            'address': 'istanbul',
+            'cardInfo': '5554443322',
+            'paymentMethod': 1,
+            'total_price': Decimal('1820.0'),
+            'items': {
+                'userName': 'swn',
+                'items': [
+                    {
+                        'quantity': Decimal('2.0'),
+                        'color': 'Red',
+                        'productId': '7934e4bd-d688-4376-bd98-8278b911eaaf',
+                        'price': Decimal('950.0'),
+                        'productName': 'IPhone X'
+                    },
+                    {
+                        'quantity': Decimal('1.0'),
+                        'color': 'Blue',
+                        'productId': 'ab4797a9-cdfa-4158-9da4-82307d76b209',
+                        'price': Decimal('870.0'),
+                        'productName': 'Samsung 10'
+                    }
+                ]
+            },
+            'orderDate': '2022-10-05T14:00:29Z'
+        }
+        """
+
+        # (注)floatはDecimal()でput_item()する。
+        resp = dynamodb.put_item(
+            TableName=table_name,
+            Item=python_obj_to_dynamodb_obj(detail)
+        )
+        print(f'put_item() resp: {json.dumps(resp)}')
+        return resp
+    except Exception as e:
+        print(str(e))
+        raise Exception
+
+
+def get_order(user_name: str, order_date: str) -> dict:
     # Todo: outputの中身はdictで・・・
     # Todo: get_itemのresponse: Item
-
-    print(f'::get_basket({user_name})')
+    print(f'::get_order() user_name: {user_name}, order_date: {order_date})')
     try:
-
-        resp = dynamodb.get_item(
+        resp = dynamodb.query(
             TableName=table_name,
-            Key=python_obj_to_dynamodb_obj({'userName': user_name})
-            # {'userName': {'S': 'Takashi'}}
+            KeyConditionExpression="userName = :userName AND orderDate = :orderDate",
+            ExpressionAttributeValues={
+                ':userName': {'S': user_name},
+                ':orderDate': {'S': order_date}
+            }
         )
-
-        print(f'get_item() resp: {resp}')
-
-        # basket = resp['Item']
-        basket = resp.get('Item', {})
-
-        deserialized_basket = dynamo_obj_to_python_obj(basket)
-        return deserialized_basket
+        print(f'query() resp: {resp}')
+        orders = resp.get('Items', {})
+        deserialized_order_list = [dynamo_obj_to_python_obj(order) for order in orders]
+        return deserialized_order_list
 
     except Exception as e:
         print(str(e))
         raise Exception
 
 
-def get_all_baskets():
+def get_all_orders():
     # Todo: outputの中身はdictで・・・
     # Todo: scanのresponse: Items
-
-    print('::get_all_baskets()')
+    print('::get_all_orders()')
     try:
         resp = dynamodb.scan(
             TableName=table_name,
         )
-        baskets = resp['Items']
-        print(f"resp['Items']: {json.dumps(baskets)}")
-
-        # Todo: list(deserialized_dict)
-        basket_list = [dynamo_obj_to_python_obj(basket) for basket in baskets]
-        return basket_list
+        orders = resp['Items']
+        print(f"resp['Items']: {json.dumps(orders)}")
+        order_list = [dynamo_obj_to_python_obj(order) for order in orders]
+        return order_list
 
     except Exception as e:
         print(str(e))
         raise Exception
-
-
-def create_basket(request: str):
-    # Todo: requestの中身はjsonで・・・
-    # Todo: outputの中身はdictで・・・
-
-    print(f'::create_basket(): {request}')
-
-    try:
-        # Todo: jsonにFloatが含まれるためDecimalをつかう
-        item = json.loads(request, parse_float=decimal.Decimal)
-        print(f'item dict: {item}')
-
-        resp = dynamodb.put_item(
-            TableName=table_name,
-            Item=python_obj_to_dynamodb_obj(item)
-        )
-        print(f'put_item() resp: {json.dumps(resp)}')
-
-        return resp
-
-    except Exception as e:
-        print(str(e))
-        raise Exception
-
-
-def delete_basket(user_name: str):
-    # Todo: outputの中身はdictで・・・
-
-    print(f'::delete_basket(): {user_name}')
-    try:
-        resp = dynamodb.delete_item(
-            TableName=table_name,
-            Key=python_obj_to_dynamodb_obj({'userName': user_name})
-            # {'userName': {'S': 'Takashi Yagita'}}
-        )
-        print(json.dumps(resp))
-        return resp
-
-    except Exception as e:
-        print(str(e))
-        raise Exception
-
-
-def publish_checkout_basket_event(checkout_payload: dict) -> dict:
-    print(f'::publish_checkout_basket_event() with payload: {checkout_payload}')
-    try:
-        response = eventbus.put_events(
-            Entries=[
-                {
-                    'EventBusName': eventbus_name,
-                    'Source': event_source,
-                    'DetailType': event_detail_type,
-                    'Detail': json.dumps(checkout_payload, cls=JSONEncoder),
-                    # Todo: 注意 JSONEncoderを入れること
-                }
-            ],
-        )
-        print(f'put_event.Detail: {json.dumps(checkout_payload, cls=JSONEncoder)}')
-        print(f'EventBridge put_events resp: {response}')
-        return response
-
-    except Exception as e:
-        print(str(e))
-        raise Exception
-
-
-def prepare_order_payload(request: dict, basket: dict) -> dict:
-    """
-    prepare order payload -> calculate total_price and combine checkoutRequest and basket items
-    aggregate and enrich request and basket data in order to create order payload
-
-    basket = {
-        "userName" : "swn",
-        "items": [
-            {
-                "quantity": 2,
-                "color": "Red",
-                "price": 950,
-                "productId": "7934e4bd-d688-4376-bd98-8278b911eaaf",
-                "productName": "IPhone X"
-            },
-            {
-                "quantity": 1,
-                "color": "Blue",
-                "price": 870,
-                "productId": "ab4797a9-cdfa-4158-9da4-82307d76b209",
-                "productName": "Samsung 10"
-            }
-        ]
-    }
-    """
-    print(f'::prepare_order_payload(): {request}, {basket}')
-
-    try:
-        if basket is None or basket.get('items', []) == []:
-            raise BasketError(f'No items in basket:')
-
-        total_price = 0
-        total_price = sum([item['price'] for item in basket['items']])
-        request['total_price'] = total_price
-        print(f'checkout basket - total price: {total_price}')
-
-        """copies all properties from basket into checkoutRequest"""
-        request['items'] = basket
-        print(f'Success prepareOrderPayload: {request}')
-        return request
-
-    except Exception as e:
-        print(str(e))
-        raise Exception
-
-
-def checkout_basket(request: str) -> None:
-    # Todo: outputの中身はdictで・・・
-    # Todo: queryのresponse: Items
-
-    print(f'::checkout_basket(): {request}')
-
-    req = json.loads(request, parse_float=decimal.Decimal)
-    print(f'req dict: {req}')
-
-    if req.get('userName') is None:
-        raise NeedParameter(f'basket should exist in request: {req}')
-
-    """ 1- Get existing basket with items """
-    basket = get_basket(req['userName'])
-    # deserialized_basket = dynamo_obj_to_python_obj(basket)
-
-    """2- create an event json object with basket items, 
-        calculate totalprice, prepare order create json data to send ordering ms"""
-    checkout_payload = prepare_order_payload(req, basket)
-    # checkout_payload = prepare_order_payload(req, deserialized_basket)
-
-    """3- publish an event to eventbridge
-        - this will subscribe by order microservice and start ordering process."""
-    publishedEvent = publish_checkout_basket_event(checkout_payload)
-
-    """ 4- remove existing basket """
-    delete_basket(checkout_payload['userName'])
-
-    return
