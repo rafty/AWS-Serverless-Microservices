@@ -1,3 +1,4 @@
+import aws_cdk
 from aws_cdk import Stack
 from constructs import Construct
 from constructors.basket.dynamodb import BasketTableConstructor
@@ -42,5 +43,18 @@ class BasketServiceStack(Stack):
             }
         )
 
-        # Todo: Set in stack.py
-        # basket_checkout_rule.add_target(SQS・・・)
+        # Event Bridge EventBus ARN
+        aws_cdk.CfnOutput(
+            self,
+            'BasketCheckoutEventBusARN',
+            value=basket_eventbus.eventbus.event_bus_arn,
+            description='Basket Service checkout eventbus ARN',
+            export_name='BasketCheckoutEventBusARN'
+        )
+        # aws_cdk.CfnOutput(
+        #     self,
+        #     'BasketCheckoutEventBusRule',
+        #     value=basket_eventbus.basket_checkout_rule.rule_arn,
+        #     description='Basket Service checkout eventbus rule arn',
+        #     export_name='BasketCheckoutEventBusRuleARN'
+        # )

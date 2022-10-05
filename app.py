@@ -12,8 +12,12 @@ env = cdk.Environment(
 )
 
 app = cdk.App()
+
 # ProductServiceStack(app, "ProductServiceStack", env=env)
-BasketServiceStack(app, "BasketServiceStack", env=env)
-# OrderServiceStack(app, "OrderServiceStack", env=env)
+
+basket_service_stack = BasketServiceStack(app, "BasketServiceStack", env=env)
+
+order_service_stack = OrderServiceStack(app, "OrderServiceStack", env=env)
+order_service_stack.add_dependency(basket_service_stack)
 
 app.synth()
