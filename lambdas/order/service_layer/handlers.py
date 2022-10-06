@@ -27,56 +27,9 @@ class OrderError(Exception):
 
 # def create_order(basket_checkout_event: str):
 def create_order(basket_checkout_event: str):
-    # Todo: basket_checkout_eventの中身はjsonで・・・
-    # Todo: outputの中身はdictで・・・
-    # create order item into db
-    # detail object should be basket_checkout_event json object
-    print(f'::create_order() type: {type(basket_checkout_event)}\nbasket_checkout_event: {basket_checkout_event}')
-    """
-    json string
-    {
-        "version": "0",
-        "id": "63a9ea27-9eac-3f93-323e-702b59b721e8",
-        "detail-type": "BasketCheckout",
-        "source": "com.basket.basket-checkout",
-        "account": "338456725408",
-        "time": "2022-10-05T14:00:28Z",
-        "region": "ap-northeast-1",
-        "resources": [],
-        "detail": {
-            "userName": "swn",
-            "totalPrice": 0,
-            "lastName": "mehmet",
-            "email": "ezozkme@gmail.com",
-            "address": "istanbul",
-            "cardInfo": "5554443322",
-            "paymentMethod": 1,
-            "total_price": 1820,
-            "items": {
-                "userName": "swn",
-                "items": [
-                    {
-                        "quantity": 2,
-                        "color": "Red",
-                        "productId": "7934e4bd-d688-4376-bd98-8278b911eaaf",
-                        "price": 950,
-                        "productName": "IPhone X"
-                    },
-                    {
-                        "quantity": 1,
-                        "color": "Blue",
-                        "productId": "ab4797a9-cdfa-4158-9da4-82307d76b209",
-                        "price": 870,
-                        "productName": "Samsung 10"
-                    }
-                ]
-            }
-        }
-    }    
-    """
-
+    # ::create_order() - basket_checkout_eventはjson object
     try:
-        # Todo: jsonにFloatが含まれるためDecimalをつかう
+        # Todo: json objectにFloatが含まれるためDecimalに変換
         event_data = json.loads(basket_checkout_event, parse_float=decimal.Decimal)
         print(f'event_data dict: {event_data}')
         """

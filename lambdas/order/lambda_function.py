@@ -40,6 +40,47 @@ def sqs_invocation(event: dict):
         ]
     }
     """
+    """
+    ↑　body (json string を dictに変換したもの)
+    {	
+        "version":"0",
+        "id":"936abaf2-1462-9aef-f536-394ebb8ddf87",
+        "detail-type":"BasketCheckout",
+        "source":"com.basket.basket-checkout",
+        "account":"338456725408",
+        "time":"2022-10-05T12:55:25Z",
+        "region":"ap-northeast-1",
+        "resources":[],
+        "detail":{
+            "userName":"swn",
+            "totalPrice":0,"lastName":"mehmet",
+            "email":"ezozkme@gmail.com",
+            "address":"istanbul",
+            "cardInfo":"5554443322",
+            "paymentMethod":1,
+            "total_price":1820.0,
+            "items":{
+                "userName":"swn",
+                "items":[
+                    {
+                        "quantity":2.0,
+                        "color":"Red",
+                        "productId":"7934e4bd-d688-4376-bd98-8278b911eaaf",
+                        "price":950.0,
+                        "productName":"IPhone X"
+                    },
+                    {
+                        "quantity":1.0,
+                        "color":"Blue",
+                        "productId":"ab4797a9-cdfa-4158-9da4-82307d76b209",
+                        "price":870.0,
+                        "productName":"Samsung 10"
+                    }
+                ]
+            }
+        }
+    }    
+    """
 
     for record in event['Records']:
         # expected record :

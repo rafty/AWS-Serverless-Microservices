@@ -132,6 +132,37 @@ def publish_checkout_basket_event(checkout_payload: dict) -> dict:
         )
         print(f'put_event.Detail: {json.dumps(checkout_payload, cls=JSONEncoder)}')
         print(f'EventBridge put_events resp: {response}')
+        """
+        {
+            "userName": "swn",
+            "totalPrice": 0,
+            "lastName": "mehmet",
+            "email": "ezozkme@gmail.com",
+            "address": "istanbul",
+            "cardInfo": "5554443322",
+            "paymentMethod": 1,
+            "total_price": 1820,
+            "items": {
+                "userName": "swn",
+                "items": [
+                    {
+                        "quantity": 2,
+                        "color": "Red",
+                        "productId": "7934e4bd-d688-4376-bd98-8278b911eaaf",
+                        "price": 950,
+                        "productName": "IPhone X"
+                    },
+                    {
+                        "quantity": 1,
+                        "color": "Blue",
+                        "productId": "ab4797a9-cdfa-4158-9da4-82307d76b209",
+                        "price": 870,
+                        "productName": "Samsung 10"
+                    }
+                ]
+            }
+        }
+        """
         return response
 
     except Exception as e:
