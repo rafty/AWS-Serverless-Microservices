@@ -62,11 +62,131 @@ def get_all_baskets():
         resp = dynamodb.scan(
             TableName=table_name,
         )
+        print(f'dynamodb.scan resp: {resp}')
+        """
+        {
+            'Items': [
+                {
+                    'userName': {'S': 'swn'},
+                    'items': {
+                        'L': [
+                            {'M': {
+                                    'quantity': {'N': '2'}, 
+                                    'color': {'S': 'Red'}, 
+                                    'productId': {'S': '7934e4bd-d688-4376-bd98-8278b911eaaf'}, 
+                                    'price': {'N': '950'}, 
+                                    'productName': {'S': 'IPhone X'}
+                                   }
+                            }, 
+                            {'M': {
+                                    'quantity': {'N': '1'}, 
+                                    'color': {'S': 'Blue'}, 
+                                    'productId': {'S': 'ab4797a9-cdfa-4158-9da4-82307d76b209'}, 
+                                    'price': {'N': '870'}, 
+                                    'productName': {'S': 'Samsung 10'}
+                                  }
+                            }
+                        ]
+                    }
+                }
+            ],
+            'Count': 1,
+            'ScannedCount': 1,
+            'ResponseMetadata': {
+                'RequestId': 'GDJ84BQUD4PKF2VFMBPJR9OPFVVV4KQNSO5AEMVJF66Q9ASUAAJG', 'HTTPStatusCode': 200,
+                'HTTPHeaders': {
+                    'server': 'Server', 
+                    'date': 'Thu, 06 Oct 2022 02:20:03 GMT', 
+                    'content-type': 'application/x-amz-json-1.0', 
+                    'content-length': '396', 
+                    'connection': 'keep-alive', 
+                    'x-amzn-requestid': 'GDJ84BQUD4PKF2VFMBPJR9OPFVVV4KQNSO5AEMVJF66Q9ASUAAJG', 
+                    'x-amz-crc32': '722318001'
+                }, 
+                'RetryAttempts': 0
+            }
+        }
+        """
         baskets = resp['Items']
         print(f"resp['Items']: {json.dumps(baskets)}")
+        """
+        resp['Items']: [
+        {
+            "userName": {
+                "S": "swn"
+            },
+            "items": {
+                "L": [
+                    {
+                        "M": {
+                            "quantity": {
+                                "N": "2"
+                            },
+                            "color": {
+                                "S": "Red"
+                            },
+                            "productId": {
+                                "S": "7934e4bd-d688-4376-bd98-8278b911eaaf"
+                            },
+                            "price": {
+                                "N": "950"
+                            },
+                            "productName": {
+                                "S": "IPhone X"
+                            }
+                        }
+                    },
+                    {
+                        "M": {
+                            "quantity": {
+                                "N": "1"
+                            },
+                            "color": {
+                                "S": "Blue"
+                            },
+                            "productId": {
+                                "S": "ab4797a9-cdfa-4158-9da4-82307d76b209"
+                            },
+                            "price": {
+                                "N": "870"
+                            },
+                            "productName": {
+                                "S": "Samsung 10"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        ]        
+        """
 
         # Todo: list(deserialized_dict)
         basket_list = [dynamo_obj_to_python_obj(basket) for basket in baskets]
+        print(f'basket_list: {basket_list}')
+        """
+        [
+            {
+                'userName': 'swn', 
+                'items': [
+                    {
+                        'quantity': Decimal('2'), 
+                        'color': 'Red', 
+                        'productId': '7934e4bd-d688-4376-bd98-8278b911eaaf', 
+                        'price': Decimal('950'), 
+                        'productName': 'IPhone X'
+                    }, 
+                    {
+                        'quantity': Decimal('1'), 
+                        'color': 'Blue', 
+                        'productId': 'ab4797a9-cdfa-4158-9da4-82307d76b209', 
+                        'price': Decimal('870'), 
+                        'productName': 'Samsung 10'
+                    }
+                ]
+            }
+        ]
+        """
         return basket_list
 
     except Exception as e:
@@ -79,17 +199,104 @@ def create_basket(request: str):
     # Todo: outputの中身はdictで・・・
 
     print(f'::create_basket(): {request}')
+    """
+    {
+        "userName" : "swn",
+        "items": [
+            {
+                "quantity": 2, 
+                "color": "Red", 
+                "price": 950, 
+                "productId": "7934e4bd-d688-4376-bd98-8278b911eaaf", 
+                "productName": "IPhone X"
+            },
+            { 
+                "quantity": 1, 
+                "color": "Blue", 
+                "price": 870, 
+                "productId": "ab4797a9-cdfa-4158-9da4-82307d76b209", 
+                "productName": "Samsung 10"
+            }
+        ]
+    }
+    """
 
     try:
         # Todo: jsonにFloatが含まれるためDecimalをつかう
         item = json.loads(request, parse_float=decimal.Decimal)
         print(f'item dict: {item}')
+        """
+        {
+            'userName': 'swn', 
+            'items': [
+                {
+                    'quantity': 2, 
+                    'color': 'Red', 
+                    'price': 950, 
+                    'productId': '7934e4bd-d688-4376-bd98-8278b911eaaf', 
+                    'productName': 'IPhone X'
+                }, 
+                {
+                    'quantity': 1, 
+                    'color': 'Blue', 
+                    'price': 870, 
+                    'productId': 'ab4797a9-cdfa-4158-9da4-82307d76b209', 
+                    'productName': 'Samsung 10'
+                }
+            ]
+        }
+        """
 
         resp = dynamodb.put_item(
             TableName=table_name,
             Item=python_obj_to_dynamodb_obj(item)
         )
-        print(f'put_item() resp: {json.dumps(resp)}')
+
+        _item = python_obj_to_dynamodb_obj(item)
+        print(f'put_item() Item: {_item}')
+        """
+        {
+            'userName': {'S': 'swn'}, 
+            'items': {'L': [
+                    {'M': 
+                        {
+                            'quantity': {'N': '2'}, 
+                            'color': {'S': 'Red'}, 
+                            'price': {'N': '950'}, 
+                            'productId': {'S': '7934e4bd-d688-4376-bd98-8278b911eaaf'}, 
+                            'productName': {'S': 'IPhone X'}
+                        }
+                    }, 
+                    {'M':
+                        {
+                            'quantity': {'N': '1'}, 
+                            'color': {'S': 'Blue'}, 
+                            'price': {'N': '870'}, 
+                            'productId': {'S': 'ab4797a9-cdfa-4158-9da4-82307d76b209'}, 
+                            'productName': {'S': 'Samsung 10'}
+                        }
+                    }
+                ]
+            }
+        }
+        """
+        print(f'put_item() resp: {resp}')
+        """
+        {
+            'ResponseMetadata': {
+                'RequestId': 'RQIHI17LBQA3RT25TGHBEF2U2RVV4KQNSO5AEMVJF66Q9ASUAAJG', 'HTTPStatusCode': 200,
+                'HTTPHeaders': {
+                    'server': 'Server', 
+                    'date': 'Thu, 06 Oct 2022 03:24:41 GMT', 
+                    'content-type': 'application/x-amz-json-1.0', 
+                    'content-length': '2', 
+                    'connection': 'keep-alive', 
+                    'x-amzn-requestid': 'RQIHI17LBQA3RT25TGHBEF2U2RVV4KQNSO5AEMVJF66Q9ASUAAJG', 
+                    'x-amz-crc32': '2745614147'}, 
+                    'RetryAttempts': 0
+            }
+        }
+        """
 
         return resp
 

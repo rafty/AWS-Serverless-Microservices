@@ -97,6 +97,125 @@ def sqs_invocation(event: dict):
 
 def apigateway_invocation(event: dict):
     print(f'apigateway_invocation() - event: {event}')
+    """
+    {
+        "resource": "/order",
+        "path": "/order",
+        "httpMethod": "GET",
+        "headers": {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "CloudFront-Forwarded-Proto": "https",
+            "CloudFront-Is-Desktop-Viewer": "true",
+            "CloudFront-Is-Mobile-Viewer": "false",
+            "CloudFront-Is-SmartTV-Viewer": "false",
+            "CloudFront-Is-Tablet-Viewer": "false",
+            "CloudFront-Viewer-ASN": "17676",
+            "CloudFront-Viewer-Country": "JP",
+            "Host": "7uoypu40p1.execute-api.ap-northeast-1.amazonaws.com",
+            "Postman-Token": "b6887c17-3faa-4c7f-9561-aae60fc9d401",
+            "User-Agent": "PostmanRuntime/7.29.2",
+            "Via": "1.1 3daf813a8b7f6c6863aa1a5bb7f429d0.cloudfront.net (CloudFront)",
+            "X-Amz-Cf-Id": "LMUP1XGT4iyTckSs7U9yabrJE3a7ncFZSs_vmf5mMljewCuP-UjuZg==",
+            "X-Amzn-Trace-Id": "Root=1-633e6785-27cab44d48d9319530c11dec",
+            "X-Forwarded-For": "60.116.89.182, 130.176.217.178",
+            "X-Forwarded-Port": "443",
+            "X-Forwarded-Proto": "https"
+        },
+        "multiValueHeaders": {
+            "Accept": [
+                "*/*"
+            ],
+            "Accept-Encoding": [
+                "gzip, deflate, br"
+            ],
+            "CloudFront-Forwarded-Proto": [
+                "https"
+            ],
+            "CloudFront-Is-Desktop-Viewer": [
+                "true"
+            ],
+            "CloudFront-Is-Mobile-Viewer": [
+                "false"
+            ],
+            "CloudFront-Is-SmartTV-Viewer": [
+                "false"
+            ],
+            "CloudFront-Is-Tablet-Viewer": [
+                "false"
+            ],
+            "CloudFront-Viewer-ASN": [
+                "17676"
+            ],
+            "CloudFront-Viewer-Country": [
+                "JP"
+            ],
+            "Host": [
+                "7uoypu40p1.execute-api.ap-northeast-1.amazonaws.com"
+            ],
+            "Postman-Token": [
+                "b6887c17-3faa-4c7f-9561-aae60fc9d401"
+            ],
+            "User-Agent": [
+                "PostmanRuntime/7.29.2"
+            ],
+            "Via": [
+                "1.1 3daf813a8b7f6c6863aa1a5bb7f429d0.cloudfront.net (CloudFront)"
+            ],
+            "X-Amz-Cf-Id": [
+                "LMUP1XGT4iyTckSs7U9yabrJE3a7ncFZSs_vmf5mMljewCuP-UjuZg=="
+            ],
+            "X-Amzn-Trace-Id": [
+                "Root=1-633e6785-27cab44d48d9319530c11dec"
+            ],
+            "X-Forwarded-For": [
+                "60.116.89.182, 130.176.217.178"
+            ],
+            "X-Forwarded-Port": [
+                "443"
+            ],
+            "X-Forwarded-Proto": [
+                "https"
+            ]
+        },
+        "queryStringParameters": null,
+        "multiValueQueryStringParameters": null,
+        "pathParameters": null,
+        "stageVariables": null,
+        "requestContext": {
+            "resourceId": "nnoxaz",
+            "resourcePath": "/order",
+            "httpMethod": "GET",
+            "extendedRequestId": "ZkUc2G94NjMFYLw=",
+            "requestTime": "06/Oct/2022:05:28:37 +0000",
+            "path": "/prod/order",
+            "accountId": "338456725408",
+            "protocol": "HTTP/1.1",
+            "stage": "prod",
+            "domainPrefix": "7uoypu40p1",
+            "requestTimeEpoch": 1665034117242,
+            "requestId": "f3bbc1a4-9220-4ddc-bcc9-79d30c4a1d77",
+            "identity": {
+                "cognitoIdentityPoolId": null,
+                "accountId": null,
+                "cognitoIdentityId": null,
+                "caller": null,
+                "sourceIp": "60.116.89.182",
+                "principalOrgId": null,
+                "accessKey": null,
+                "cognitoAuthenticationType": null,
+                "cognitoAuthenticationProvider": null,
+                "userArn": null,
+                "userAgent": "PostmanRuntime/7.29.2",
+                "user": null
+            },
+            "domainName": "7uoypu40p1.execute-api.ap-northeast-1.amazonaws.com",
+            "apiId": "7uoypu40p1"
+        },
+        "body": null,
+        "isBase64Encoded": false
+    }    
+    """
 
     try:
         http_method = event.get('httpMethod')
